@@ -1,0 +1,12 @@
+{
+  "_note": "Configuration_Dashboards context item. key = 'Executive Scorecard'; this object is the `value`.",
+  "key": "Executive Scorecard",
+  "definition": {
+    "icon": "LayoutDashboard",
+    "color": "indigo-500",
+    "description": "The CEO / board north-star — margin, revenue, denials, labor, throughput, safety. Each tile drills into its functional board.",
+    "order": 1,
+    "label_web": "Executive Scorecard",
+    "label_mobile": "Exec Scorecard"
+  }
+}

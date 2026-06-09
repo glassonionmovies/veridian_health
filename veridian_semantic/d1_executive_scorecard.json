@@ -1,0 +1,213 @@
+{
+  "_note": "D1 Executive Scorecard — 1 dashboard + 10 KPI definitions for Metric Studio. All read veridian_metrics.exec_kpi_month (1 row/month). Phase-0 clean (summary + trend) and carry v-next fields (direction, target, comparison). Percent metrics: formatter.scale='fraction' (exec stores ratios as fractions) and threshold/target values are in DISPLAY-percent units. Thresholds/targets are demo defaults — tune against live numbers after the first pipeline run. Create the dashboard first, then each metric (its dashboards[] pins it here).",
+  "dashboard": {
+    "key": "Executive Scorecard",
+    "definition": {
+      "icon": "Crown",
+      "color": "indigo-500",
+      "description": "North-star turnaround KPIs — margin, volume, cash, labor, safety. CEO / board.",
+      "order": 1,
+      "label_web": "Executive Scorecard",
+      "label_mobile": "Executive"
+    }
+  },
+  "metrics": [
+    {
+      "key": "Operating Margin",
+      "definition": {
+        "display_name": "Operating Margin",
+        "summary_label": "Latest Month",
+        "unit": "pct",
+        "icon": "TrendingUp",
+        "dashboards": ["Executive Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 1,
+        "description": "Net patient revenue minus labor + supply cost, over net revenue (proxy). The turnaround north-star.",
+        "direction": "higher_is_better",
+        "formatter": { "type": "percent", "decimals": 1, "suffix": "%", "scale": "fraction" },
+        "threshold": { "operator": ">=", "value": 0, "good": "green", "bad": "red" },
+        "target": { "value": 0, "label": "Breakeven" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT operating_margin_proxy AS value FROM `veridian_metrics.exec_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, operating_margin_proxy AS value FROM `veridian_metrics.exec_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "Net Patient Revenue",
+      "definition": {
+        "display_name": "Net Patient Revenue",
+        "summary_label": "Latest Month",
+        "unit": "USD",
+        "icon": "Wallet",
+        "dashboards": ["Executive Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 2,
+        "description": "Cash collected from payers in the latest month.",
+        "direction": "higher_is_better",
+        "formatter": { "type": "currency", "decimals": 1, "prefix": "$", "abbreviate": true },
+        "threshold": { "operator": ">", "value": 0, "good": "green", "bad": "red" },
+        "comparison": { "basis": "prior_year", "label": "vs last year" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT net_patient_revenue AS value FROM `veridian_metrics.exec_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, net_patient_revenue AS value FROM `veridian_metrics.exec_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "Net Revenue Realization",
+      "definition": {
+        "display_name": "Net Revenue Realization",
+        "summary_label": "Latest Month",
+        "unit": "pct",
+        "icon": "Activity",
+        "dashboards": ["Executive Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 3,
+        "description": "Collected as a share of gross billed (yield on charges).",
+        "direction": "higher_is_better",
+        "formatter": { "type": "percent", "decimals": 1, "suffix": "%", "scale": "fraction" },
+        "threshold": { "operator": ">=", "value": 30, "good": "green", "bad": "red" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT net_realization_pct AS value FROM `veridian_metrics.exec_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, net_realization_pct AS value FROM `veridian_metrics.exec_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "Denial Rate",
+      "definition": {
+        "display_name": "Denial Rate",
+        "summary_label": "Latest Month",
+        "unit": "pct",
+        "icon": "ShieldAlert",
+        "dashboards": ["Executive Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 4,
+        "description": "Share of claims denied by payers. A core revenue-cycle lever.",
+        "direction": "lower_is_better",
+        "formatter": { "type": "percent", "decimals": 1, "suffix": "%", "scale": "fraction" },
+        "threshold": { "operator": "<", "value": 5, "good": "green", "bad": "red" },
+        "target": { "value": 5, "label": "Target ≤ 5%" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT denial_rate AS value FROM `veridian_metrics.exec_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, denial_rate AS value FROM `veridian_metrics.exec_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "Days in A/R",
+      "definition": {
+        "display_name": "Days in A/R",
+        "summary_label": "Latest Month",
+        "unit": "days",
+        "icon": "Clock",
+        "dashboards": ["Executive Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 5,
+        "description": "Cash-velocity proxy — lower means faster collection.",
+        "direction": "lower_is_better",
+        "formatter": { "type": "number", "decimals": 0, "suffix": "d" },
+        "threshold": { "operator": "<", "value": 45, "good": "green", "bad": "red" },
+        "target": { "value": 40, "label": "Target 40d" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT ar_days_proxy AS value FROM `veridian_metrics.exec_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, ar_days_proxy AS value FROM `veridian_metrics.exec_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "Agency Labor %",
+      "definition": {
+        "display_name": "Agency Labor %",
+        "summary_label": "Latest Month",
+        "unit": "pct",
+        "icon": "Users",
+        "dashboards": ["Executive Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 6,
+        "description": "Agency/travel hours as a share of worked hours. The #1 margin lever.",
+        "direction": "lower_is_better",
+        "formatter": { "type": "percent", "decimals": 1, "suffix": "%", "scale": "fraction" },
+        "threshold": { "operator": "<", "value": 10, "good": "green", "bad": "red" },
+        "target": { "value": 10, "label": "Target ≤ 10%" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT agency_pct AS value FROM `veridian_metrics.exec_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, agency_pct AS value FROM `veridian_metrics.exec_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "Labor Cost per Worked Hour",
+      "definition": {
+        "display_name": "Labor Cost / Worked Hour",
+        "summary_label": "Latest Month",
+        "unit": "USD",
+        "icon": "Briefcase",
+        "dashboards": ["Executive Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 7,
+        "description": "Blended labor cost per productive hour.",
+        "direction": "lower_is_better",
+        "formatter": { "type": "currency", "decimals": 0, "prefix": "$" },
+        "threshold": { "operator": "<", "value": 100, "good": "green", "bad": "red" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT labor_cost_per_worked_hour AS value FROM `veridian_metrics.exec_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, labor_cost_per_worked_hour AS value FROM `veridian_metrics.exec_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "Average Length of Stay",
+      "definition": {
+        "display_name": "Average Length of Stay",
+        "summary_label": "Latest Month",
+        "unit": "days",
+        "icon": "Activity",
+        "dashboards": ["Executive Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 8,
+        "description": "Mean inpatient LOS (discharged). Throughput + cost driver.",
+        "direction": "lower_is_better",
+        "formatter": { "type": "number", "decimals": 1, "suffix": "d" },
+        "threshold": { "operator": "<", "value": 5, "good": "green", "bad": "red" },
+        "target": { "value": 4.5, "label": "Target 4.5d" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT alos AS value FROM `veridian_metrics.exec_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, alos AS value FROM `veridian_metrics.exec_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "ED Boarding Hours",
+      "definition": {
+        "display_name": "ED Boarding Hours",
+        "summary_label": "Latest Month",
+        "unit": "hours",
+        "icon": "Clock",
+        "dashboards": ["Executive Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 9,
+        "description": "Average hours boarded in the ED awaiting an inpatient bed. Access + safety signal.",
+        "direction": "lower_is_better",
+        "formatter": { "type": "number", "decimals": 1, "suffix": "h" },
+        "threshold": { "operator": "<", "value": 4, "good": "green", "bad": "red" },
+        "target": { "value": 2, "label": "Target 2h" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT ed_boarding_avg AS value FROM `veridian_metrics.exec_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, ed_boarding_avg AS value FROM `veridian_metrics.exec_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "Serious Safety Events",
+      "definition": {
+        "display_name": "Serious Safety Events",
+        "summary_label": "Latest Month",
+        "unit": "count",
+        "icon": "ShieldAlert",
+        "dashboards": ["Executive Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 10,
+        "description": "Severe/death-severity safety events this month. The board's quality north-star.",
+        "direction": "lower_is_better",
+        "formatter": { "type": "number", "decimals": 0 },
+        "threshold": { "operator": "<", "value": 5, "good": "green", "bad": "red" },
+        "target": { "value": 0, "label": "Target 0" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT serious_safety_events AS value FROM `veridian_metrics.exec_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, serious_safety_events AS value FROM `veridian_metrics.exec_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    }
+  ]
+}

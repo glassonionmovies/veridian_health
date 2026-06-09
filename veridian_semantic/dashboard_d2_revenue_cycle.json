@@ -1,0 +1,12 @@
+{
+  "_note": "Configuration_Dashboards context item. key = 'Revenue Cycle & Net Revenue'; this object is the `value`.",
+  "key": "Revenue Cycle & Net Revenue",
+  "definition": {
+    "icon": "Wallet",
+    "color": "blue-500",
+    "description": "Denials, underpayments, contract yield, charge capture — the CFO / revenue-cycle board.",
+    "order": 2,
+    "label_web": "Revenue Cycle & Net Revenue",
+    "label_mobile": "Revenue Cycle"
+  }
+}
