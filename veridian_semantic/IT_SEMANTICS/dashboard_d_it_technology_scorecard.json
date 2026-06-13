@@ -1,0 +1,12 @@
+{
+  "_note": "Configuration_Dashboards context item. key = 'Technology Scorecard'; this object is the `value`.",
+  "key": "Technology Scorecard",
+  "definition": {
+    "icon": "ServerCog",
+    "color": "indigo-500",
+    "description": "North-star IT KPIs — availability, change/DORA, security, FinOps, service desk, clinician experience. CIO / technology exec.",
+    "order": 3,
+    "label_web": "Technology Scorecard",
+    "label_mobile": "Technology"
+  }
+}

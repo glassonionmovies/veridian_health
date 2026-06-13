@@ -1,0 +1,255 @@
+{
+  "_note": "D? Technology Scorecard — 1 dashboard + 11 headline CIO KPIs (one per IT discipline) for Metric Studio. All read veridian_metrics.exec_it_kpi_month (1 row/month). Percent metrics: formatter.scale='fraction' (exec stores ratios as fractions); threshold/target values in DISPLAY-percent units. Thresholds/targets are demo defaults — tune against live numbers after the first pipeline run. Create the dashboard first, then each metric (its dashboards[] pins it here).",
+  "dashboard": {
+    "key": "Technology Scorecard",
+    "definition": {
+      "icon": "ServerCog",
+      "color": "indigo-500",
+      "description": "North-star IT KPIs — availability, change/DORA, security, FinOps, service desk, clinician experience. CIO / technology exec.",
+      "order": 3,
+      "label_web": "Technology Scorecard",
+      "label_mobile": "Technology"
+    }
+  },
+  "metrics": [
+    {
+      "key": "Service Availability",
+      "definition": {
+        "display_name": "Service Availability",
+        "summary_label": "Latest Month",
+        "unit": "pct",
+        "icon": "Activity",
+        "dashboards": ["Technology Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 1,
+        "description": "Fleet-wide uptime — 1 minus downtime over fleet-minutes. The reliability north-star (ITSM / SRE).",
+        "direction": "higher_is_better",
+        "formatter": { "type": "percent", "decimals": 2, "suffix": "%", "scale": "fraction" },
+        "threshold": { "operator": ">=", "value": 99.9, "good": "green", "bad": "red" },
+        "target": { "value": 99.9, "label": "Target 99.9%" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT service_availability_pct AS value FROM `veridian_metrics.exec_it_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_it_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, service_availability_pct AS value FROM `veridian_metrics.exec_it_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "Major Incidents",
+      "definition": {
+        "display_name": "Major Incidents",
+        "summary_label": "Latest Month",
+        "unit": "count",
+        "icon": "ShieldAlert",
+        "dashboards": ["Technology Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 2,
+        "description": "Sev1 incidents this month. The board's reliability-risk signal (ITSM / SRE).",
+        "direction": "lower_is_better",
+        "formatter": { "type": "number", "decimals": 0 },
+        "threshold": { "operator": "<", "value": 3, "good": "green", "bad": "red" },
+        "target": { "value": 0, "label": "Target 0" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT major_incident_count AS value FROM `veridian_metrics.exec_it_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_it_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, major_incident_count AS value FROM `veridian_metrics.exec_it_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "MTTR",
+      "definition": {
+        "display_name": "MTTR",
+        "summary_label": "Latest Month",
+        "unit": "minutes",
+        "icon": "Clock",
+        "dashboards": ["Technology Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 3,
+        "description": "Mean time to resolve incidents. Lower means faster recovery (ITSM / SRE).",
+        "direction": "lower_is_better",
+        "formatter": { "type": "number", "decimals": 0, "suffix": "m" },
+        "threshold": { "operator": "<", "value": 120, "good": "green", "bad": "red" },
+        "target": { "value": 90, "label": "Target 90m" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT mttr_minutes AS value FROM `veridian_metrics.exec_it_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_it_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, mttr_minutes AS value FROM `veridian_metrics.exec_it_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "Change Failure Rate",
+      "definition": {
+        "display_name": "Change Failure Rate",
+        "summary_label": "Latest Month",
+        "unit": "pct",
+        "icon": "GitPullRequestClosed",
+        "dashboards": ["Technology Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 4,
+        "description": "Share of changes that fail or cause incident. A core DORA delivery-quality lever.",
+        "direction": "lower_is_better",
+        "formatter": { "type": "percent", "decimals": 1, "suffix": "%", "scale": "fraction" },
+        "threshold": { "operator": "<", "value": 15, "good": "green", "bad": "red" },
+        "target": { "value": 15, "label": "Target ≤ 15%" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT change_failure_rate AS value FROM `veridian_metrics.exec_it_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_it_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, change_failure_rate AS value FROM `veridian_metrics.exec_it_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "Change Lead Time",
+      "definition": {
+        "display_name": "Change Lead Time",
+        "summary_label": "Latest Month",
+        "unit": "hours",
+        "icon": "Timer",
+        "dashboards": ["Technology Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 5,
+        "description": "Mean hours from change request to deploy. DORA delivery-velocity signal.",
+        "direction": "lower_is_better",
+        "formatter": { "type": "number", "decimals": 1, "suffix": "h" },
+        "threshold": { "operator": "<", "value": 72, "good": "green", "bad": "red" },
+        "target": { "value": 48, "label": "Target 48h" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT change_lead_time_hours AS value FROM `veridian_metrics.exec_it_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_it_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, change_lead_time_hours AS value FROM `veridian_metrics.exec_it_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "Open Critical Vulnerabilities",
+      "definition": {
+        "display_name": "Open Critical Vulns",
+        "summary_label": "Latest Month",
+        "unit": "count",
+        "icon": "ShieldX",
+        "dashboards": ["Technology Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 6,
+        "description": "Critical-severity vulnerabilities still open at month-end. The SecOps exposure north-star.",
+        "direction": "lower_is_better",
+        "formatter": { "type": "number", "decimals": 0 },
+        "threshold": { "operator": "<", "value": 25, "good": "green", "bad": "red" },
+        "target": { "value": 0, "label": "Target 0" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT open_critical_vulns AS value FROM `veridian_metrics.exec_it_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_it_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, open_critical_vulns AS value FROM `veridian_metrics.exec_it_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "Vulnerability SLA Breach %",
+      "definition": {
+        "display_name": "Vuln SLA Breach %",
+        "summary_label": "Latest Month",
+        "unit": "pct",
+        "icon": "ShieldAlert",
+        "dashboards": ["Technology Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 7,
+        "description": "Share of decided vulnerabilities remediated outside SLA. SecOps remediation-discipline signal.",
+        "direction": "lower_is_better",
+        "formatter": { "type": "percent", "decimals": 1, "suffix": "%", "scale": "fraction" },
+        "threshold": { "operator": "<", "value": 10, "good": "green", "bad": "red" },
+        "target": { "value": 5, "label": "Target ≤ 5%" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT vuln_sla_breach_pct AS value FROM `veridian_metrics.exec_it_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_it_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, vuln_sla_breach_pct AS value FROM `veridian_metrics.exec_it_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "IT Spend",
+      "definition": {
+        "display_name": "IT Spend",
+        "summary_label": "Latest Month",
+        "unit": "USD",
+        "icon": "Wallet",
+        "dashboards": ["Technology Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 8,
+        "description": "Total IT spend this month across run + change (FinOps / TBM).",
+        "direction": "lower_is_better",
+        "formatter": { "type": "currency", "decimals": 1, "prefix": "$", "abbreviate": true },
+        "threshold": { "operator": "<", "value": 20000000, "good": "green", "bad": "red" },
+        "comparison": { "basis": "prior_year", "label": "vs last year" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT it_spend_total AS value FROM `veridian_metrics.exec_it_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_it_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, it_spend_total AS value FROM `veridian_metrics.exec_it_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "Cloud Idle %",
+      "definition": {
+        "display_name": "Cloud Idle %",
+        "summary_label": "Latest Month",
+        "unit": "pct",
+        "icon": "Cloud",
+        "dashboards": ["Technology Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 9,
+        "description": "Idle/waste as a share of cloud spend. The FinOps optimization lever — lower is leaner.",
+        "direction": "lower_is_better",
+        "formatter": { "type": "percent", "decimals": 1, "suffix": "%", "scale": "fraction" },
+        "threshold": { "operator": "<", "value": 20, "good": "green", "bad": "red" },
+        "target": { "value": 15, "label": "Target ≤ 15%" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT cloud_idle_pct AS value FROM `veridian_metrics.exec_it_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_it_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, cloud_idle_pct AS value FROM `veridian_metrics.exec_it_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "Self-Service Deflection",
+      "definition": {
+        "display_name": "Self-Service Deflection",
+        "summary_label": "Latest Month",
+        "unit": "pct",
+        "icon": "Headphones",
+        "dashboards": ["Technology Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 10,
+        "description": "Share of tickets resolved via self-service. The Service Desk efficiency lever.",
+        "direction": "higher_is_better",
+        "formatter": { "type": "percent", "decimals": 1, "suffix": "%", "scale": "fraction" },
+        "threshold": { "operator": ">=", "value": 35, "good": "green", "bad": "red" },
+        "target": { "value": 40, "label": "Target 40%" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT self_service_deflection_pct AS value FROM `veridian_metrics.exec_it_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_it_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, self_service_deflection_pct AS value FROM `veridian_metrics.exec_it_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "EHR After-Hours %",
+      "definition": {
+        "display_name": "EHR After-Hours %",
+        "summary_label": "Latest Month",
+        "unit": "pct",
+        "icon": "MoonStar",
+        "dashboards": ["Technology Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 11,
+        "description": "Clinician EHR time outside scheduled hours ('pajama time'). DEX burnout signal — lower is healthier.",
+        "direction": "lower_is_better",
+        "formatter": { "type": "percent", "decimals": 1, "suffix": "%", "scale": "fraction" },
+        "threshold": { "operator": "<", "value": 10, "good": "green", "bad": "red" },
+        "target": { "value": 8, "label": "Target ≤ 8%" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT ehr_after_hours_pct AS value FROM `veridian_metrics.exec_it_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_it_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, ehr_after_hours_pct AS value FROM `veridian_metrics.exec_it_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    },
+    {
+      "key": "AI Adoption",
+      "definition": {
+        "display_name": "AI Adoption",
+        "summary_label": "Latest Month",
+        "unit": "pct",
+        "icon": "Sparkles",
+        "dashboards": ["Technology Scorecard"],
+        "span_web": 1, "span_mobile": 1, "order": 12,
+        "description": "Share of active providers using AI clinical tools. The AI-leverage growth signal.",
+        "direction": "higher_is_better",
+        "formatter": { "type": "percent", "decimals": 1, "suffix": "%", "scale": "fraction" },
+        "threshold": { "operator": ">=", "value": 40, "good": "green", "bad": "red" },
+        "target": { "value": 60, "label": "Target 60%" },
+        "comparison": { "basis": "prior_period", "label": "vs last month" },
+        "trend_granularity": "monthly",
+        "sql": "SELECT ai_adoption_pct AS value FROM `veridian_metrics.exec_it_kpi_month` WHERE month = (SELECT MAX(month) FROM `veridian_metrics.exec_it_kpi_month`)",
+        "trend_sql": "SELECT FORMAT_DATE('%Y-%m-%d', month) AS period, ai_adoption_pct AS value FROM `veridian_metrics.exec_it_kpi_month` ORDER BY month ASC LIMIT 13"
+      }
+    }
+  ]
+}
